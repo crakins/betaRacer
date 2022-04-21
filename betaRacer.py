@@ -1,7 +1,7 @@
 import pygame, sys
 from pygame.locals import *
 import random
-import Enemy
+from Models.Enemy import Enemy
 
 # Initialize program
 pygame.init()
@@ -26,7 +26,7 @@ DISPLAYSURF.fill (WHITE)
 pygame.display.set_caption("Road Racer beta")
 
 # Create class objects
-E1 = Enemy.Enemy()
+E1 = Enemy()
 
 # Game Loop
 while True:
