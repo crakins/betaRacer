@@ -1,5 +1,6 @@
 import pygame
 from pygame.locals import *
+import globals
 
 # Screen information
 SCREEN_WIDTH =  400

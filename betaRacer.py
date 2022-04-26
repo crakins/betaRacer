@@ -1,11 +1,14 @@
+from socket import gaierror
 import pygame, sys
 from pygame.locals import *
 import time
 from Models.Enemy import Enemy
 from Models.Player import Player
+import globals
 
 # Initialize program
 pygame.init()
+globals.init()
 
 # Assign FPS value
 FPS = 60 
@@ -19,14 +22,18 @@ BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 
 # Oscar challenge: change background to AnimatedStreet.png
-# pygame.image.load("resources/images/Enemy.png")
+# Hint: pygame.image.load("resources/images/Enemy.png") 
 
 DOVE_ROAD = pygame.image.load("resources/images/Animatedstreet.png")
 
 # Screen information
 SCREEN_WIDTH =  400
 SCREEN_HEIGHT = 600
-SPEED = 5
+
+# Setting up fonts
+font = pygame.font.SysFont("Verdana", 60)
+font_small = pygame.font.SysFont("Verdana", 20)
+game_over = font.render("game over", True, BLACK)
 
 # Create background
 DISPLAYSURF = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT))
@@ -54,7 +61,7 @@ while True:
     # Cycle through all events occuring
     for event in pygame.event.get():
         if event.type == INC_SPEED:
-            SPEED += 2
+            globals.SPEED += 0.5
         
         if event.type == QUIT:
             pygame.quit()
@@ -62,7 +69,10 @@ while True:
     
     # Background
     DISPLAYSURF.blit(DOVE_ROAD,[0, 0])
-    
+    score_text = "Score: " + str(globals.SCORE)
+    scores = font_small.render(str(score_text), True, BLACK)
+    DISPLAYSURF.blit(scores, (10, 10))
+
     # Moves and re-draw all sprites
     for entity in all_sprites:
         DISPLAYSURF.blit(entity.image, entity.rect)
@@ -70,20 +80,18 @@ while True:
     
     # To be run if a collission occurs between Player and Enemy
     if pygame.sprite.spritecollideany(P1, enemies):
+        pygame.mixer.Sound('./resources/sounds/crash.wav').play()
+        time.sleep(0.5)
+
         DISPLAYSURF.fill(RED)
+        DISPLAYSURF.blit(game_over, (30, 250))
+
         pygame.display.update()
         for entity in all_sprites:
             entity.kill()
         time.sleep(2)
         pygame.quit()
         sys.exit()
-
-    # P1.update()
-    # E1.move()
-    
-    
-    # P1.draw(DISPLAYSURF)
-    # E1.draw(DISPLAYSURF)
 
     pygame.display.update()
     FramePerSec.tick(FPS)
