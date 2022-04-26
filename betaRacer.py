@@ -11,7 +11,7 @@ pygame.init()
 globals.init()
 
 # Assign FPS value
-FPS = 60 
+FPS = 60
 FramePerSec = pygame.time.Clock()
 
 # Setting up color objects
@@ -22,7 +22,7 @@ BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 
 # Oscar challenge: change background to AnimatedStreet.png
-# Hint: pygame.image.load("resources/images/Enemy.png") 
+# Hint: pygame.image.load("resources/images/Enemy.png")
 
 DOVE_ROAD = pygame.image.load("resources/images/Animatedstreet.png")
 
@@ -33,16 +33,44 @@ SCREEN_HEIGHT = 600
 # Setting up fonts
 font = pygame.font.SysFont("Verdana", 60)
 font_small = pygame.font.SysFont("Verdana", 20)
-game_over = font.render("game over", True, BLACK)
+game_over = font.render("Game Over", True, BLACK)
 
 # Create background
+class Background():
+      def __init__(self):
+            self.bgimage = pygame.image.load('./resources/images/AnimatedStreet.png')
+            self.rectBGimg = self.bgimage.get_rect()
+ 
+            self.bgY1 = 0
+            self.bgX1 = 0
+ 
+            self.bgY2 = self.rectBGimg.height
+            self.bgX2 = 0
+ 
+            self.movingUpSpeed = 5
+         
+      def update(self):
+        self.bgY1 -= self.movingUpSpeed
+        self.bgY2 -= self.movingUpSpeed
+        if self.bgY1 <= -self.rectBGimg.height:
+            self.bgY1 = self.rectBGimg.height
+        if self.bgY2 <= -self.rectBGimg.height:
+            self.bgY2 = self.rectBGimg.height
+             
+      def render(self):
+         DISPLAYSURF.blit(self.bgimage, (self.bgX1, self.bgY1))
+         DISPLAYSURF.blit(self.bgimage, (self.bgX2, self.bgY2))
+
 DISPLAYSURF = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT))
-DISPLAYSURF.blit(DOVE_ROAD,[0, 0])
+# DISPLAYSURF.blit(DOVE_ROAD,[0, 0]) # used for static background
 pygame.display.set_caption("Road Racer BETA")
 
 # Setup Sprites
 E1 = Enemy()
 P1 = Player()
+
+# Setup Background
+back_ground = Background()
 
 # Create Sprite Groups
 enemies = pygame.sprite.Group()
@@ -55,20 +83,27 @@ all_sprites.add(E1)
 INC_SPEED = pygame.USEREVENT + 1
 pygame.time.set_timer(INC_SPEED, 1000)
 
+# Setup background music
+pygame.mixer.music.load('./resources/sounds/background.wav')
+
+# Play background music
+pygame.mixer.music.play(-1)
+
 # Game Loop
 while True:
-
     # Cycle through all events occuring
     for event in pygame.event.get():
         if event.type == INC_SPEED:
             globals.SPEED += 0.5
-        
+
         if event.type == QUIT:
             pygame.quit()
             sys.exit()
-    
+
     # Background
-    DISPLAYSURF.blit(DOVE_ROAD,[0, 0])
+    back_ground.update()
+    back_ground.render()
+    # DISPLAYSURF.blit(DOVE_ROAD,[0, 0]) # static background
     score_text = "Score: " + str(globals.SCORE)
     scores = font_small.render(str(score_text), True, BLACK)
     DISPLAYSURF.blit(scores, (10, 10))
@@ -77,7 +112,7 @@ while True:
     for entity in all_sprites:
         DISPLAYSURF.blit(entity.image, entity.rect)
         entity.move()
-    
+
     # To be run if a collission occurs between Player and Enemy
     if pygame.sprite.spritecollideany(P1, enemies):
         pygame.mixer.Sound('./resources/sounds/crash.wav').play()
